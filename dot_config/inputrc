@@ -1,0 +1,30 @@
+# Readline input config
+
+# Be 8 bit clean.
+set input-meta on
+set output-meta on
+
+# Disable bell
+set bell-style none
+
+# Faster tab completion (press tab only once to complete)
+set show-all-if-unmodified on
+
+# Enable colour for bash completion
+set colored-stats on
+set visible-stats on
+
+# Append an @ to mark symlinks, purely visual
+set mark-symlinked-directories on
+
+# Condense text longer than 3 characters between tab completion options
+set completion-prefix-display-length 3
+
+# Set vi mode
+# set editing-mode vi
+
+# Vi mode specific commands
+#$if mode=vi
+# Show mode
+#set show-mode-in-prompt on
+#$endif

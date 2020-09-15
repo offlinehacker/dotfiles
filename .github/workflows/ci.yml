@@ -1,0 +1,16 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  clone-and-install:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/vscode/devcontainers/base:debian
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./install.sh
+      - name: chezmoi data
+        run: '"$HOME/.local/bin/chezmoi" data'

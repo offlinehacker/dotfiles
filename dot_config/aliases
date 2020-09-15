@@ -1,0 +1,7 @@
+alias ..='cd ..'
+alias ...='cd ../..'
+alias cp="cp -iv"
+alias mv="mv -iv"
+alias ll='ls -l'
+alias la='ls -A'
+alias l='ls -CF'

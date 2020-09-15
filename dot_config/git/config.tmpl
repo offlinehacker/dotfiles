@@ -1,0 +1,84 @@
+[alias]
+	ai = "add -i"
+	ap = "add -p"
+	b = "branch"
+	backup = "!sh -c 'CURRENT=$(git symbolic-ref --short HEAD) && git stash save -a && git checkout -B backup && git stash apply && git add -A . && git commit -m \"backup\" && git push -f $1 && git checkout $CURRENT && git stash pop && git branch -D backup' -"
+	cam = "commit -a -m"
+	cf = "config"
+	cherry-pick-push = "!sh -c 'CURRENT=$(git symbolic-ref --short HEAD) && git stash && git checkout -B $2 $3 && git cherry-pick $1 && git push -f $4 && git checkout $CURRENT && git stash pop' -"
+	ci = "commit -v"
+	cia = "commit -v -a"
+	co = "checkout"
+	cp = "cherry-pick"
+	d = "diff"
+	dc = "diff --cached"
+	dw = "diff --color-words"
+	dwc = "diff --cached --color-words"
+	l = "log --graph --decorate --abbrev-commit"
+	l1 = "log --graph --decorate --pretty=oneline --abbrev-commit"
+	l1a = "log --graph --decorate --pretty=oneline --abbrev-commit --all"
+	lf = "log --follow"
+	lgb = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches"
+	ll = "log -p --graph --decorate --abbrev-commit"
+	lla = "log -p --graph --decorate --abbrev-commit --all"
+	llf = "log -p --follow"
+	record = "!sh -c '(git add -p -- $@ && git commit) || git reset' --"
+	resh1 = "reset HEAD^"
+	s = "!git --no-pager status"
+	sm = "submodule"
+	st = "status"
+	tl = "tag -l"
+
+[color]
+	branch = false
+	diff = "auto"
+	status = "auto"
+	ui = "auto"
+
+[color "branch"]
+	current = "normal"
+	local = "normal"
+	plain = "normal"
+	remote = "red"
+
+[color "diff"]
+	commit = "yellow"
+	frag = "cyan"
+	meta = "bold"
+	new = "white green"
+	old = "white red"
+	plain = "normal"
+	whitespace = "normal red"
+
+[color "grep"]
+	match = "normal"
+
+[color "interactive"]
+	error = "normal"
+	header = "normal"
+	help = "normal"
+	prompt = "normal"
+
+[color "status"]
+	added = "red"
+	changed = "white red"
+	header = "normal"
+	nobranch = "white red"
+	untracked = "white red"
+	updated = "green"
+
+[diff]
+	renames = true
+
+[push]
+	default = "current"
+
+[rebase]
+	autoStash = true
+
+[svn]
+	rmdir = true
+
+[user]
+	email = "{{ .email }}"
+	name = "{{ .name }}"

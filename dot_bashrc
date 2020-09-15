@@ -1,0 +1,114 @@
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=100000
+HISTFILESIZE=100000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# Check for colour support
+if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+else
+	color_prompt=
+fi
+
+function color_my_prompt {
+
+    local __exit="$?"
+    local __num_jobs="$(jobs -p | wc -w)"
+
+    # User@Host
+    PS1="\[\033[01;32m\]\u@\h "
+
+    # Current Location
+    PS1+="\[\033[01;34m\]\w"
+
+    # git branch and git status
+    if [ -x "$(which git 2>&1)" ]; then
+        local branch="$(git symbolic-ref --short HEAD 2> /dev/null)"
+
+        if [ -n "${branch}" ]; then
+
+            # Add branch if found
+            PS1+=" \[\e[1;34m\](${branch}"
+
+            # Get local commit state
+            git status --porcelain | grep -qE "^[[:alnum:]\!]" && PS1+='*'
+            git status | grep -oqP '(?<=by ).*(?= commit)' && PS1+='^'
+
+            # Add modification state of files
+            local status="$(git status --porcelain | \
+                awk '1 { print substr($0, 2, 2) }'| sort | uniq | tr -d '\n ')"
+            test -n "$status" && PS1+=" $status"
+            PS1+=")"
+        fi
+    fi
+
+    # Jobs indicator
+    test "$__num_jobs" != "0" && PS1+=" \[\e[1;32m\][j$__num_jobs]"
+
+    # Exit code
+    test "$__exit" != 0 && PS1+=" \[\033[31m\][$__exit]"
+
+    # $ Tail
+    # purple $ PS1+="\[\033[35m\]$\[\033[00m\] "
+    PS1+="\[\033[00m\] $ "
+
+    export PS1
+
+}
+
+
+if [ "$color_prompt" = yes ]; then
+    PROMPT_COMMAND=color_my_prompt
+else
+    PS1='\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# Alias definitions.
+if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/aliases" ]; then
+    source "${XDG_CONFIG_HOME:-$HOME/.config}/aliases"
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+. /usr/share/autojump/autojump.bash
