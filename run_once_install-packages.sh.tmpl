@@ -1,5 +1,5 @@
 #!/bin/sh
 {{ if eq .chezmoi.osRelease.id "debian" -}}
 sudo apt update -y
-sudo apt install -y curl git autojump vim
+sudo apt install -y bash-autocompletion curl git autojump vim
 {{ end -}}
