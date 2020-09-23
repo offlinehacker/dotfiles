@@ -22,6 +22,6 @@ if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ] ; then
     . $HOME/.nix-profile/etc/profile.d/nix.sh
 fi
 
-if [ -z $XDG_DATA_DIRS && -d /usr/share ] ; then
+if [ -z $XDG_DATA_DIRS ] && [ -d /usr/share ] ; then
     export XDG_DATA_DIRS=/usr/share
 fi
