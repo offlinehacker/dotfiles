@@ -30,7 +30,7 @@ else
 fi
 
 function locate_xdg_data_dirs_file {
-    find $(echo $XDG_DATA_DIRS | tr ":" "\n") -name $1 -print -quit
+    find $(echo ${XDG_DATA_DIRS:-/usr/local} | tr ":" "\n") -name $1 -print -quit
 }
 
 function color_my_prompt {
