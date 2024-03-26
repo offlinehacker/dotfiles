@@ -25,3 +25,9 @@ fi
 if [ -z $XDG_DATA_DIRS ] && [ -d /usr/share ] ; then
     export XDG_DATA_DIRS=/usr/share
 fi
+
+# if go is installed set GOPATH and add go binaries to PATH
+if command -v go >/dev/null 2>&1; then
+    export GOPATH=$HOME/go
+    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+fi

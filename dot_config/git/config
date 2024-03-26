@@ -1,3 +1,6 @@
+[include]
+	path = config.extra
+
 [alias]
 	ai = "add -i"
 	ap = "add -p"
@@ -79,6 +82,10 @@
 [svn]
 	rmdir = true
 
-[user]
-	email = "{{ .email }}"
-	name = "{{ .name }}"
+[init]
+	defaultBranch = main
+[gpg]
+	program = gpg2
+
+[url "git@gitlab.com:"]
+	insteadOf = https://gitlab.com/

@@ -34,8 +34,6 @@ function locate_xdg_data_dirs_file {
 }
 
 function color_my_prompt {
-
-    local __exit="$?"
     local __num_jobs="$(jobs -p | wc -w)"
 
     # User@Host
@@ -44,39 +42,17 @@ function color_my_prompt {
     # Current Location
     PS1+="\[\033[01;34m\]\w"
 
-    # git branch and git status
-    if [ -x "$(which git 2>&1)" ]; then
-        local branch="$(git symbolic-ref --short HEAD 2> /dev/null)"
-
-        if [ -n "${branch}" ]; then
-
-            # Add branch if found
-            PS1+=" \[\e[1;34m\](${branch}"
-
-            # Get local commit state
-            git status --porcelain | grep -qE "^[[:alnum:]\!]" && PS1+='*'
-            git status | grep -oqP '(?<=by ).*(?= commit)' && PS1+='^'
-
-            # Add modification state of files
-            local status="$(git status --porcelain | \
-                awk '1 { print substr($0, 2, 2) }'| sort | uniq | tr -d '\n ')"
-            test -n "$status" && PS1+=" $status"
-            PS1+=")"
-        fi
-    fi
-
     # Jobs indicator
     test "$__num_jobs" != "0" && PS1+=" \[\e[1;32m\][j$__num_jobs]"
 
-    # Exit code
-    test "$__exit" != 0 && PS1+=" \[\033[31m\][$__exit]"
+    # GIT prompt (uses official git contrib script https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh)
+    PS1+="\[\033[35m\]$(__git_ps1 " (%s)")\[\033[00m\]"
 
     # $ Tail
     # purple $ PS1+="\[\033[35m\]$\[\033[00m\] "
     PS1+="\[\033[00m\] $ "
 
     export PS1
-
 }
 
 
@@ -121,4 +97,11 @@ fi
 
 if command -v direnv &>/dev/null; then
   eval "$(direnv hook bash)"
+fi
+
+# source additional bashrc files if they exist
+if [ -d ~/.bashrc.d ]; then
+  for f in ~/.bashrc.d/*.sh; do
+    source "$f"
+  done
 fi
