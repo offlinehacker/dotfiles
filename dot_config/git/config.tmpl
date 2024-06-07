@@ -1,6 +1,3 @@
-[include]
-	path = config.extra
-
 [alias]
 	ai = "add -i"
 	ap = "add -p"
@@ -84,8 +81,27 @@
 
 [init]
 	defaultBranch = main
-[gpg]
-	program = gpg2
 
 [url "git@gitlab.com:"]
 	insteadOf = https://gitlab.com/
+
+[user]
+{{-   if .name }}
+	name = {{ .name }}
+{{-   end }}
+{{-   if .email }}
+	email = {{ .email }}
+{{-   end }}
+{{-   if .signingkey }}
+	signingKey = {{ .signingkey }}
+{{-   end }}
+[tag]
+	forceSignAnnotated = true
+[commit]
+	gpgSign = true
+[gpg]
+{{-   if .signingkey }}
+	program = gpg2
+{{-   else }}
+	format = ssh
+{{-   end }}
