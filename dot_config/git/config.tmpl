@@ -99,9 +99,7 @@
 	forceSignAnnotated = true
 [commit]
 	gpgSign = true
+{{-   if not .signingkey }}
 [gpg]
-{{-   if .signingkey }}
-	program = gpg2
-{{-   else }}
 	format = ssh
 {{-   end }}
