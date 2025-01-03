@@ -2,11 +2,5 @@
 
 # Brewfile hash: {{ include "Brewfile" | sha256sum }}
 
-if ! type brew 2&>/dev/null; then
-    echo "Brew is not installed"
-    exit 1
-fi 
-
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
 brew bundle --no-lock --file={{ joinPath .chezmoi.sourceDir "Brewfile" | quote }}
