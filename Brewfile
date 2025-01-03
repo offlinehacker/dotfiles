@@ -5,6 +5,7 @@ brew "vim"
 brew "direnv"
 brew "file"
 brew "chezmoi"
+brew "gpg2"
 
 brew "go"
 brew "node"
