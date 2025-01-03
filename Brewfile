@@ -4,6 +4,12 @@ brew "autojump"
 brew "vim"
 brew "direnv"
 brew "file"
+brew "chezmoi"
 
 brew "go"
 brew "node"
+
+brew "kubectl"
+brew "k9s"
+brew "helm"
+brew "docker-compose"
