@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-{{ if or (eq .chezmoi.osRelease.id "debian") (eq .chezmoi.osRelease.id "ubuntu") -}}
-sudo apt update -y
-sudo apt install -y bash-completion curl git autojump vim direnv file
-{{ else if (eq .chezmoi.osRelease.id "nixos") }}
-nix profile install nixpkgs#curl nixpkgs#gitFull nixpkgs#vim nixpkgs#direnv nixpkgs#file
+brew bundle --no-lock --file=/dev/stdin <<EOF
+{{ range .packages.brews -}}
+brew {{ . | quote }}
 {{ end -}}
+EOF

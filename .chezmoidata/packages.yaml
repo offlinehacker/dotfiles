@@ -1,0 +1,10 @@
+packages:
+  brew:
+    - curl
+    - git
+    - autojump
+    - vim
+    - direnv
+    - file
+    - go
+    - nodejs
