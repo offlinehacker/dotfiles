@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+if [ ! -d /home/linuxbrew/.linuxbrew/bin ]; then
+    echo "Brew is not installed"
+    exit 1
+fi 
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
 brew bundle --no-lock --file=/dev/stdin <<EOF
 {{ range .packages.brews -}}
 brew {{ . | quote }}
