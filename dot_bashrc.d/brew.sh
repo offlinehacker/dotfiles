@@ -1,4 +1,4 @@
-if [ -d /home/linuxbrew/.linuxbrew/bin ]; then
+if type brew 2&>/dev/null; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
   HOMEBREW_PREFIX="$(brew --prefix)"
