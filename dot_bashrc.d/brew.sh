@@ -2,7 +2,7 @@ if [ -d /home/linuxbrew/.linuxbrew/bin ]; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
-if type brew 2&>/dev/null; then
+if type brew >/dev/null 2>/dev/null; then
   HOMEBREW_PREFIX="$(brew --prefix)"
   if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]
   then
