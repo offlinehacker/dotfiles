@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# Brewfile hash: {{ include "Brewfile" | sha256sum }}
+
 if [ ! -d /home/linuxbrew/.linuxbrew/bin ]; then
     echo "Brew is not installed"
     exit 1
