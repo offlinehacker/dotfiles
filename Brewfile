@@ -6,6 +6,7 @@ brew "direnv"
 brew "file"
 brew "chezmoi"
 brew "gpg2"
+brew "bash-completion@2"
 
 brew "go"
 brew "node"

@@ -2,7 +2,7 @@
 
 # Brewfile hash: {{ include "Brewfile" | sha256sum }}
 
-if [ ! -d /home/linuxbrew/.linuxbrew/bin ]; then
+if ! type brew 2&>/dev/null; then
     echo "Brew is not installed"
     exit 1
 fi 
