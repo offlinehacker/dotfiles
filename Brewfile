@@ -11,6 +11,8 @@ brew "bash-completion@2"
 
 brew "go"
 brew "node"
+brew "python"
+brew "pipx"
 
 brew "kubectl"
 brew "k9s"
