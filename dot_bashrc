@@ -33,24 +33,47 @@ function locate_xdg_data_dirs_file {
     find $(echo ${XDG_DATA_DIRS:-/usr/share} | tr ":" "\n") -name $1 -print -quit 2>/dev/null
 }
 
+function get_git_branch {
+    local __dir="$PWD"
+    while [[ -n "$__dir" ]]; do
+        if [ -f "$__dir/.git/HEAD" ]; then
+            local __git_branch
+            read -r __git_branch < "$__dir/.git/HEAD" 2>/dev/null || return
+            if [[ $__git_branch == ref:* ]]; then
+                __git_branch=${__git_branch#ref: refs/heads/}
+            else
+                __git_branch=${__git_branch:0:7}
+            fi
+            echo " \[\033[35m\]($__git_branch)\[\033[00m\]"
+            return
+        fi
+        [[ "$__dir" == "/" ]] && break
+        __dir="${__dir%/*}"
+    done
+}
+
 function color_my_prompt {
-    local __num_jobs="$(jobs -p | wc -w)"
+    local __num_jobs=0
+    local __job
+    while read -r __job; do
+        ((__num_jobs++))
+    done < <(jobs)
 
-    # User@Host
-    PS1="\[\033[01;32m\]\u@\h "
-
-    # Current Location
-    PS1+="\[\033[01;34m\]\w"
-
-    # Jobs indicator
-    test "$__num_jobs" != "0" && PS1+=" \[\e[1;32m\][j$__num_jobs]"
-
-    # GIT prompt (uses official git contrib script https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh)
-    PS1+="\[\033[35m\]$(__git_ps1 " (%s)")\[\033[00m\]"
-
-    # $ Tail
-    # purple $ PS1+="\[\033[35m\]$\[\033[00m\] "
-    PS1+="\[\033[00m\] $ "
+    # Build prompt components
+    local __user_host="\[\033[01;32m\]\u\[\033[00m\]@\[\033[01;34m\]\h\[\033[00m\]"
+    local __path=" \[\033[01;33m\]\w\[\033[00m\]"
+    local __jobs=""
+    test "$__num_jobs" != "0" && __jobs=" \[\033[01;32m\][j$__num_jobs]\[\033[00m\]"
+    local __git="$(get_git_branch)"
+    
+    # Single line for wide terminals, multi-line for narrow ones
+    if [[ ${COLUMNS:-80} -gt 120 ]]; then
+        # Single line for wide terminals
+        PS1="$__user_host$__path$__jobs$__git \[\033[01;36m\]❯\[\033[00m\] "
+    else
+        # Multi-line for narrow terminals
+        PS1="$__user_host$__path$__jobs$__git\n\[\033[01;36m\]❯\[\033[00m\] "
+    fi
 
     export PS1
 }
@@ -83,21 +106,9 @@ fi
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
-if ! shopt -oq posix; then
-  if [[ -f `locate_xdg_data_dirs_file "bash-completion"`/bash_completion ]]; then
-    . `locate_xdg_data_dirs_file "bash-completion"`/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
-fi
+# NOTE: Completion loading is now handled by ~/.bashrc.d/90-bash-completions.sh
 
-if [[ -f `locate_xdg_data_dirs_file "autojump.bash"` ]]; then
-  . `locate_xdg_data_dirs_file "autojump.bash"`
-fi
-
-if command -v direnv &>/dev/null; then
-  eval "$(direnv hook bash)"
-fi
+# autojump and direnv setup moved to ~/.bashrc.d/
 
 # source additional bashrc files if they exist
 if [ -d ~/.bashrc.d ]; then
