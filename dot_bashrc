@@ -59,6 +59,19 @@ function color_my_prompt {
         ((__num_jobs++))
     done < <(jobs)
 
+    # Check for virtualenv or similar environment prefixes
+    local __prefix=""
+    if [[ -n "$VIRTUAL_ENV" ]] || [[ -n "$CONDA_DEFAULT_ENV" ]] || [[ -n "$MOJO_VENV_PROMPT" ]]; then
+        # Extract the environment name from various sources
+        if [[ -n "$MOJO_VENV_PROMPT" ]]; then
+            __prefix="$MOJO_VENV_PROMPT"
+        elif [[ -n "$VIRTUAL_ENV" ]]; then
+            __prefix="($(basename "$VIRTUAL_ENV")) "
+        elif [[ -n "$CONDA_DEFAULT_ENV" ]]; then
+            __prefix="($CONDA_DEFAULT_ENV) "
+        fi
+    fi
+
     # Build prompt components
     local __user_host="\[\033[01;32m\]\u\[\033[00m\]@\[\033[01;34m\]\h\[\033[00m\]"
     local __path=" \[\033[01;33m\]\w\[\033[00m\]"
@@ -69,10 +82,10 @@ function color_my_prompt {
     # Single line for wide terminals, multi-line for narrow ones
     if [[ ${COLUMNS:-80} -gt 120 ]]; then
         # Single line for wide terminals
-        PS1="$__user_host$__path$__jobs$__git \[\033[01;36m\]❯\[\033[00m\] "
+        PS1="$__prefix$__user_host$__path$__jobs$__git \[\033[01;36m\]❯\[\033[00m\] "
     else
         # Multi-line for narrow terminals
-        PS1="$__user_host$__path$__jobs$__git\n\[\033[01;36m\]❯\[\033[00m\] "
+        PS1="$__prefix$__user_host$__path$__jobs$__git\n\[\033[01;36m\]❯\[\033[00m\] "
     fi
 
     export PS1
