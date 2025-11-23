@@ -25,10 +25,26 @@ status=$(get_tmux_option "@tmux-dotbar-position" "bottom")
 justify=$(get_tmux_option "@tmux-dotbar-justify" "absolute-centre")
 
 left_state=$(get_tmux_option "@tmux-dotbar-left" true)
-status_left=$("$left_state" && get_tmux_option "@tmux-dotbar-status-left" "#[bg=$bg,fg=$fg_session]#{?client_prefix,, #S }#[bg=$fg_prefix,fg=$bg,bold]#{?client_prefix, #S ,}#[bg=$bg,fg=${fg_session}]")
-
 right_state=$(get_tmux_option "@tmux-dotbar-right" false)
-status_right=$("$right_state" && get_tmux_option "@tmux-dotbar-status-right" "#[bg=$bg,fg=$fg_session] %H:%M #[bg=$bg,fg=${fg_session}]")
+
+is_truthy() {
+  case "$1" in
+    true|1|yes|on) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+if is_truthy "$left_state"; then
+  status_left=$(get_tmux_option "@tmux-dotbar-status-left" "#[bg=$bg,fg=$fg_session]#{?client_prefix,, #S }#[bg=$fg_prefix,fg=$bg,bold]#{?client_prefix, #S ,}#[bg=$bg,fg=${fg_session}]")
+else
+  status_left=""
+fi
+
+if is_truthy "$right_state"; then
+  status_right=$(get_tmux_option "@tmux-dotbar-status-right" "#[bg=$bg,fg=$fg_session] %H:%M #[bg=$bg,fg=${fg_session}]")
+else
+  status_right=""
+fi
 
 window_status_format=$(get_tmux_option "@tmux-dotbar-window-status-format" ' #W ')
 window_status_separator=$(get_tmux_option "@tmux-dotbar-window-status-separator" ' • ')
