@@ -1,0 +1,9 @@
+[Unit]
+Description=Update Homebrew packages
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/linuxbrew/.linuxbrew/bin/brew upgrade --quiet
+ExecStartPost=/bin/systemctl --user restart opencode.service
+Environment="HOMEBREW_NO_AUTO_UPDATE=1"
