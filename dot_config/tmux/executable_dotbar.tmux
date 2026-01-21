@@ -14,19 +14,26 @@ get_tmux_option() {
   echo "$default_value"
 }
 
-# colors
-bg=$(get_tmux_option "@tmux-dotbar-bg" '#0B0E14')
-fg=$(get_tmux_option "@tmux-dotbar-fg" '#475266')
-fg_current=$(get_tmux_option "@tmux-dotbar-fg-current" '#BFBDB6')
-fg_session=$(get_tmux_option "@tmux-dotbar-fg-session" '#565B66')
-fg_prefix=$(get_tmux_option "@tmux-dotbar-fg-prefix" '#95E6CB')
+# Default palette
+base_bg="colour4"
+base_fg="colour15"
+base_fg_current="colour15"
+base_fg_session="colour0"
+base_fg_prefix="colour0"
+
+bg=$(get_tmux_option "@tmux-dotbar-bg" "$base_bg")
+fg=$(get_tmux_option "@tmux-dotbar-fg" "$base_fg")
+fg_current=$(get_tmux_option "@tmux-dotbar-fg-current" "$base_fg_current")
+fg_session=$(get_tmux_option "@tmux-dotbar-fg-session" "$base_fg_session")
+fg_prefix=$(get_tmux_option "@tmux-dotbar-fg-prefix" "$base_fg_prefix")
 
 status=$(get_tmux_option "@tmux-dotbar-position" "bottom")
 justify=$(get_tmux_option "@tmux-dotbar-justify" "absolute-centre")
+status_fg=$(get_tmux_option "@tmux-dotbar-status-fg" "colour0")
+window_fg=$(get_tmux_option "@tmux-dotbar-window-fg" "colour0")
 
 left_state=$(get_tmux_option "@tmux-dotbar-left" true)
 right_state=$(get_tmux_option "@tmux-dotbar-right" false)
-
 is_truthy() {
   case "$1" in
     true|1|yes|on) return 0 ;;
@@ -46,6 +53,8 @@ else
   status_right=""
 fi
 
+
+
 window_status_format=$(get_tmux_option "@tmux-dotbar-window-status-format" ' #W ')
 window_status_separator=$(get_tmux_option "@tmux-dotbar-window-status-separator" ' • ')
 
@@ -53,7 +62,7 @@ maximized_pane_icon=$(get_tmux_option "@tmux-dotbar-maximized-icon" '󰊓')
 show_maximized_icon_for_all_tabs=$(get_tmux_option "@tmux-dotbar-show-maximized-icon-for-all-tabs" false)
 
 tmux set-option -g status-position "$status"
-tmux set-option -g status-style "bg=${bg},fg=${fg}"
+tmux set-option -g status-style "bg=${bg},fg=${status_fg}"
 tmux set-option -g status-justify "$justify"
 
 tmux set-option -g status-left "$status_left"
@@ -61,7 +70,7 @@ tmux set-option -g status-right "$status_right"
 
 tmux set-window-option -g window-status-separator "$window_status_separator"
 
-tmux set-option -g window-status-style "bg=${bg},fg=${fg}"
+tmux set-option -g window-status-style "bg=${bg},fg=${window_fg}"
 tmux set-option -g window-status-format "$window_status_format"
 "$show_maximized_icon_for_all_tabs" && tmux set-option -g window-status-format "${window_status_format}#{?window_zoomed_flag,${maximized_pane_icon},}"
 
