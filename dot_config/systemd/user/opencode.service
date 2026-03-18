@@ -6,6 +6,7 @@ ConditionPathExists=/home/linuxbrew/.linuxbrew/bin/opencode
 [Service]
 Type=simple
 Environment="PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:%h/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment=OPENCODE_ENABLE_EXA=1
 ExecStart=/home/linuxbrew/.linuxbrew/bin/opencode serve --hostname=0.0.0.0 --port 4096 --cors *
 Restart=on-failure
 RestartSec=5

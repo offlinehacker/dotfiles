@@ -23,3 +23,4 @@ brew "docker-compose"
 
 tap "anomalyco/tap"
 brew "opencode"
+brew "golangci-lint-langserver"
