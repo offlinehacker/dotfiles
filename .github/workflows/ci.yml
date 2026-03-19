@@ -11,6 +11,10 @@ jobs:
       image: mcr.microsoft.com/vscode/devcontainers/base:debian
     steps:
       - uses: actions/checkout@v2
+      - name: Install Homebrew
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
       - run: ./install.sh
       - name: chezmoi data
         run: '"$HOME/.local/bin/chezmoi" data'
