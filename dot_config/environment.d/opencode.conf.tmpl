@@ -1,4 +1,6 @@
 OPENCODE_ENABLE_EXA=1
+{{- if not (env "CI") }}
 OPENROUTER_API_KEY={{ onepasswordRead "op://Private/openrouter/api_key" }}
 OPENCODE_API_KEY={{ onepasswordRead "op://Private/opencode/api_key" }}
 OPENCODE_GO_API_KEY={{ onepasswordRead "op://Private/opencode/api_key" }}
+{{- end }}
