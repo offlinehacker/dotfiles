@@ -20,6 +20,7 @@ brew "kubectl"
 brew "k9s"
 brew "helm"
 brew "docker-compose"
+brew "awscli"
 
 tap "anomalyco/tap"
 brew "opencode"
