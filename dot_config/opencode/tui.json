@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "leader_timeout": 2000,
+  "keybinds": {
+    "leader": "ctrl+x",
+    "command_list": "<leader>p",
+    "tool_details": "<leader>d",
+    "session_toggle_generic_tool_output": "<leader>o"
+  }
+}
