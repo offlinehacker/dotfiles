@@ -1,0 +1,11 @@
+#!/bin/bash
+# ~/bin/tmux-opencode-attach
+SESSION="$1"
+
+if tmux has-session -t "$SESSION" 2>/dev/null; then
+  # Create a linked session (shared windows, independent view)
+  LINKED="${SESSION}-$(date +%s)"
+  exec tmux new-session -s "$LINKED" -t "$SESSION" \; set destroy-unattached on
+else
+  exec tmux new-session -s "$SESSION" -n "opencode" "bash -i -c 'opencode; exec \$SHELL'"
+fi
