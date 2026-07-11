@@ -15,6 +15,7 @@ brew "go"
 brew "node"
 brew "python"
 brew "pipx"
+brew "golangci-lint-langserver"
 
 brew "kubectl"
 brew "k9s"
@@ -22,6 +23,10 @@ brew "helm"
 brew "docker-compose"
 brew "awscli"
 
-tap "anomalyco/tap"
+tap "oven-sh/bun", trusted: true
+brew "oven-sh/bun/bun"
+
+tap "anomalyco/tap", trusted: true
 brew "opencode"
-brew "golangci-lint-langserver"
+
+tap "xtruder/tap", trusted: true
