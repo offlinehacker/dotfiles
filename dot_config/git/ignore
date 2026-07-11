@@ -1,0 +1,15 @@
+.playwright-mcp/
+
+.opencode/*
+!.opencode/config
+!.opencode/config.*
+!.opencode/config/
+!.opencode/config/**
+!.opencode/plans/
+!.opencode/plans/**
+
+# Editor metadata and temporary files
+.history/
+*.swp
+*.swo
+*~
