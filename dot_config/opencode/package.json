@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "test:docs-update": "bun run plugins/docs-update/index.test.ts"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.17.18"
+  }
+}

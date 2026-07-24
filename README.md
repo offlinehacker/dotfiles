@@ -18,3 +18,5 @@ Service is installed but not enabled by default.
 
 - enable/start service: `systemctl --user enable --now opencode.service`
 - check status: `systemctl --user status opencode.service`
+
+The global OpenCode configuration includes a documentation-update plugin and companion feature-documentation skill. See [Automatic documentation updates](dot_config/opencode/plugins/docs-update/README.md) for triggers, configuration, and operational constraints.

@@ -25,6 +25,7 @@
 	record = "!sh -c '(git add -p -- $@ && git commit) || git reset' --"
 	resh1 = "reset HEAD^"
 	s = "!git --no-pager status"
+	memory-clone = "!f() { destination=$(mktemp -d /tmp/opencode-explore-XXXXX) && git clone \"$1\" \"$destination\" && printf '%s\\n' \"$destination\"; }; f"
 	sm = "submodule"
 	st = "status"
 	tl = "tag -l"

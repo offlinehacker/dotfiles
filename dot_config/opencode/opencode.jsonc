@@ -2,6 +2,9 @@
   "$schema": "https://opencode.ai/config.json",
   "small_model": "opencode-go/deepseek-v4-flash",
   "formatter": true,
+  "plugin": [
+    ["./plugins/docs-update/index.ts", { "skill": "docs-update" }]
+  ],
   "provider": {
     "openrouter": {
       "models": {
@@ -11,6 +14,45 @@
               "order": ["minimax/highspeed"]
             }
           }
+        }
+      }
+    }
+  },
+  "agent": {
+    "explore": {
+      "permission": {
+        "bash": {
+          "*": "deny",
+          "git": "allow",
+          "git *": "allow",
+          "git memory-clone *": "allow"
+        },
+        "external_directory": {
+          "*": "deny",
+          "/tmp/opencode-explore-*": "allow",
+          "/tmp/opencode-explore-*/**": "allow"
+        },
+        "skill": {
+          "*": "deny",
+          "memory-clone": "allow"
+        }
+      }
+    },
+    "plan": {
+      "permission": {
+        "bash": {
+          "*": "ask",
+          "git": "allow",
+          "git *": "allow",
+          "git memory-clone *": "allow"
+        },
+        "external_directory": {
+          "*": "ask",
+          "/tmp/opencode-explore-*": "allow",
+          "/tmp/opencode-explore-*/**": "allow"
+        },
+        "skill": {
+          "memory-clone": "allow"
         }
       }
     }
