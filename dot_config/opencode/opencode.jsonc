@@ -9,6 +9,14 @@
   "plugin": [
     ["./plugins/docs-update/index.ts", { "skill": "docs-update" }]
   ],
+  "agent": {
+    "build": {
+      "prompt": "{file:prompts/custom.txt}\n\n{file:prompts/build-specific.txt}"
+    },
+    "plan": {
+      "prompt": "{file:prompts/custom.txt}\n\n{file:prompts/plan-specific.txt}"
+    }
+  },
   "provider": {
     "openrouter": {
       "models": {
