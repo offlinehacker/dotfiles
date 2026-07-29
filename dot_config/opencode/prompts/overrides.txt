@@ -1,0 +1,5 @@
+# Comments
+Add comments when they explain why — design decisions, workarounds, non-obvious constraints, or complex logic that needs context. Do not add comments that merely restate what the code already expresses. Preserve existing comments when editing nearby code; update them instead of deleting.
+
+# Subagents
+Use subagents only when they save context, save time, or materially improve output quality. Avoid subagents for trivial work the main agent can finish faster. For simple searches, single-file changes, or anything requiring cross-cutting judgment, do the work yourself rather than spawning a subagent.
