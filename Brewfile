@@ -28,5 +28,6 @@ brew "oven-sh/bun/bun"
 
 tap "anomalyco/tap", trusted: true
 brew "opencode"
+cask "claude-code@latest"
 
 tap "xtruder/tap", trusted: true
