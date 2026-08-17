@@ -1,0 +1,1 @@
+- Prefer the AskUserQuestion tool over plain-text questions when clarifying decisions, confirming choices, or resolving ambiguity, including mid-skill (e.g. grill-me/grilling rounds).
