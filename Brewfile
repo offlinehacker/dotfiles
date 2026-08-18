@@ -11,11 +11,15 @@ brew "gpg2"
 brew "bash", link: false
 brew "bash-completion@2"
 
+brew "gh"
+brew "glab"
+
 brew "go"
 brew "node"
 brew "python"
 brew "pipx"
-brew "golangci-lint-langserver"
+#brew "golangci-lint-langserver"
+brew "golangci-lint"
 
 brew "kubectl"
 brew "k9s"
