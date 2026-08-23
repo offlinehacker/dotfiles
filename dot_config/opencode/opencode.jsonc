@@ -1,22 +1,43 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "small_model": "opencode/deepseek-v4-flash-free",
+  "model": "opencode/gpt-5.6-sol",
+  "small_model": "opencode/deepseek-v4-flash",
   "plugin": [
     "opencode-plugin-auto-update",
     "opencode-history-search",
     "@prevalentware/opencode-goal-plugin",
     "@plannotator/opencode@latest",
-    "@xtruder/opencode-claude-max-plugin"
-    //["./plugins/docs-update/index.ts", { "skill": "docs-update" }]
+    ["./plugins/docs-update/index.ts", { "skill": "docs-update" }],
+    ["./plugins/toggle-autoport/index.ts", {}]
   ],
   "formatter": true,
+  "provider": {
+    "openrouter": {
+      "models": {
+        "minimax/minimax-m2.7": {
+          "options": {
+            "provider": {
+              "order": ["minimax/highspeed"]
+            }
+          }
+        }
+      }
+    }
+  },
   "agent": {
     "build": {
-      "prompt_append": "{file:prompts/overrides.txt}"
+      "prompt_append": "{file:prompts/overrides.txt}",
+      "permission": {
+        "external_directory": {
+          "/tmp/opencode-explore-*": "allow",
+          "/tmp/opencode-explore-*/**": "allow"
+        }
+      }
     },
     "explore": {
       "permission": {
         "bash": {
+          "*": "deny",
           "git": "allow",
           "git *": "allow",
           "git memory-clone *": "allow"
@@ -26,13 +47,15 @@
           "/tmp/opencode-explore-*/**": "allow"
         },
         "skill": {
+          "*": "deny",
           "memory-clone": "allow"
         }
       }
-   },
+    },
     "plan": {
       "permission": {
         "bash": {
+          "*": "ask",
           "git": "allow",
           "git *": "allow",
           "git memory-clone *": "allow"
@@ -63,6 +86,11 @@
       "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-571faf44-cc73-4969-9888-40bb84bd5ed5"
       }
+    },
+    "logfire": {
+      "type": "remote",
+      "url": "https://logfire-eu.pydantic.dev/mcp",
+      "enabled": true
     }
   }
 }
