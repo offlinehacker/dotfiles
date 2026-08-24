@@ -1,0 +1,12 @@
+[Unit]
+Description=oo7 Secret Service provider (org.freedesktop.secrets)
+ConditionPathExists=/home/linuxbrew/.linuxbrew/bin/oo7-daemon
+
+[Service]
+Type=simple
+ExecStart=/home/linuxbrew/.linuxbrew/bin/oo7-daemon
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

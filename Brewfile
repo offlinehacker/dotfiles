@@ -42,3 +42,4 @@ brew "opencode"
 cask "claude-code@latest"
 
 tap "xtruder/tap", trusted: true
+brew "oo7"
