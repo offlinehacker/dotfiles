@@ -5,6 +5,7 @@ ConditionPathExists=/home/linuxbrew/.linuxbrew/bin/oo7-daemon
 [Service]
 Type=simple
 ExecStart=/home/linuxbrew/.linuxbrew/bin/oo7-daemon
+ImportCredential=oo7.keyring-encryption-password
 Restart=on-failure
 RestartSec=5
 

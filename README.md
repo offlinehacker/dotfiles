@@ -33,12 +33,17 @@ gnome-keyring.
 The `login` keyring starts **locked** on every daemon start and must be unlocked
 before secrets can be read.
 
-**Manual unlock** (password read from stdin — creates the keyring on first use):
+**Manual unlock** — the daemon reads the login password only at startup (there is
+no "unlock a running daemon" command), so unlock by providing it on restart:
 
 ```sh
-systemctl --user stop oo7-daemon.service
+# Option A — foreground unlocked daemon (simplest):
 printf 'your-password' | oo7-daemon --login --replace   # Ctrl-C to stop
-systemctl --user start oo7-daemon.service
+
+# Option B — keep the systemd service as the daemon:
+systemctl --user stop oo7-daemon.service
+printf 'your-password' | oo7-daemon-login &             # helper listens (120s)
+systemctl --user start oo7-daemon.service               # daemon connects → unlocks
 ```
 
 **Auto-unlock on a server** (zero interaction, TPM-bound, systemd ≥ 258):
