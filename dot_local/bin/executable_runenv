@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Runs a command with direnv's (.envrc/.env) environment and secretspec's
+# resolved secrets applied, in that order: direnv first (so local dev
+# overrides like .env files are in place), then secretspec layers secrets
+# on top before exec'ing the final command.
+#
+# Each layer only activates if its config file exists (searching from the
+# current directory upward, same as each tool's own auto-detection). With
+# neither file present, the command just runs directly.
+#
+# Usage: runenv [-p <profile>] -- <command> [args...]
+# With no -p, secretspec uses its own default profile.
+set -euo pipefail
+
+DIRENV="direnv"
+SECRETSPEC="secretspec"
+
+die() { echo "runenv: $*" >&2; exit 1; }
+
+find_up() {
+    local dir="$PWD"
+    local -a names=("$@")
+    while true; do
+        local name
+        for name in "${names[@]}"; do
+            [[ -e "$dir/$name" ]] && return 0
+        done
+        [[ "$dir" == "/" ]] && return 1
+        dir="$(dirname "$dir")"
+    done
+}
+
+usage() { die "usage: runenv [-p <profile>] -- <command> [args...]"; }
+
+PROFILE=""
+if [[ "${1:-}" == "-p" ]]; then
+    [[ -n "${2:-}" ]] || usage
+    PROFILE="$2"
+    shift 2
+fi
+
+[[ "${1:-}" == "--" ]] || usage
+shift
+
+[[ $# -gt 0 ]] || die "no command given"
+
+cmd=("$@")
+
+if find_up secretspec.toml; then
+    secretspec_args=(run)
+    [[ -n "$PROFILE" ]] && secretspec_args+=(--profile "$PROFILE")
+    secretspec_args+=(-- "${cmd[@]}")
+    cmd=("$SECRETSPEC" "${secretspec_args[@]}")
+fi
+
+if find_up .envrc .env; then
+    cmd=("$DIRENV" exec . "${cmd[@]}")
+fi
+
+exec "${cmd[@]}"

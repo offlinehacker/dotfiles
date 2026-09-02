@@ -1,1 +1,2 @@
 - Prefer the AskUserQuestion tool over plain-text questions when clarifying decisions, confirming choices, or resolving ambiguity, including mid-skill (e.g. grill-me/grilling rounds).
+- ALWAYS use **runenv** command to run commands in specific environment, example: `runenv [-p <profile>] -- <command> [args...]`. It will automatically load direnv and secretspec, thus injecting required secrets.

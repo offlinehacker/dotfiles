@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+# Self-unlocking transparent wrapper around the real `bw` CLI.
+#
+# Any command (except when BW_SESSION is already set by the caller): if no
+# cached session is found in the kernel keyring, requests the master
+# password via `password-ask` (which prompts through `password-listen`
+# running in your terminal), unlocks, caches the session in the kernel
+# user keyring (in-memory only, never written to disk, auto-expires after
+# BW_SESSION_TTL seconds), then runs your actual command with it.
+#
+# `bw lock`: delegates normally, then revokes the cached key.
+set -euo pipefail
+
+REAL_BW="/home/linuxbrew/.linuxbrew/bin/bw"
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
+LOCK_FILE="$RUNTIME_DIR/bw_session.lock"
+KEY_DESC="bw_session"
+KEY_TTL="${BW_SESSION_TTL:-60}" # 1m
+
+die() { echo "bw: $*" >&2; exit 1; }
+
+find_key() { keyctl search @u user "$KEY_DESC" 2>/dev/null; }
+
+get_cached_session() {
+    local kid
+    kid="$(find_key)" || return 1
+    keyctl print "$kid" 2>/dev/null
+}
+
+store_session() {
+    local session="$1" kid
+    if kid="$(find_key)"; then
+        keyctl revoke "$kid" 2>/dev/null || true
+    fi
+    kid="$(keyctl add user "$KEY_DESC" "$session" @u)"
+    keyctl timeout "$kid" "$KEY_TTL" 2>/dev/null || true
+}
+
+clear_session() {
+    local kid
+    kid="$(find_key)" || return 0
+    keyctl revoke "$kid" 2>/dev/null || true
+}
+
+# Prompts for the master password via password-ask, unlocks, and prints
+# the resulting session token on stdout.
+do_unlock() {
+    local password
+    password="$(password-ask --title "Bitwarden Unlock" --desc "Enter your Bitwarden master password" --prompt "Master password:")" || return 1
+
+    local session
+    session="$(BW_UNLOCK_PW="$password" "$REAL_BW" unlock --passwordenv BW_UNLOCK_PW --raw 2>&1)" || {
+        unset password BW_UNLOCK_PW
+        die "bw unlock failed: $session"
+    }
+    unset password BW_UNLOCK_PW
+
+    printf '%s' "$session"
+}
+
+session_valid() {
+    local candidate="$1"
+    [[ -n "$candidate" ]] && BW_SESSION="$candidate" "$REAL_BW" status 2>/dev/null | grep -q '"status":"unlocked"'
+}
+
+ensure_session() {
+    [[ -n "${BW_SESSION:-}" ]] && return 0
+
+    local cached
+    cached="$(get_cached_session)" || true
+    if session_valid "$cached"; then
+        export BW_SESSION="$cached"
+        return 0
+    fi
+
+    # Serialize concurrent callers (e.g. secretspec fires several `bw
+    # status` calls in parallel): block on the lock rather than racing, so
+    # only one process actually drives the pinentry prompt.
+    exec 9>"$LOCK_FILE"
+    flock 9
+
+    # Re-check: whoever held the lock before us may have just unlocked.
+    cached="$(get_cached_session)" || true
+    if session_valid "$cached"; then
+        export BW_SESSION="$cached"
+        flock -u 9
+        return 0
+    fi
+
+    local session
+    session="$(do_unlock)" || { flock -u 9; return 1; }
+    store_session "$session"
+    export BW_SESSION="$session"
+    flock -u 9
+}
+
+case "${1:-}" in
+    unlock)
+        ensure_session || exit 1
+        printf '%s\n' "$BW_SESSION"
+        exit 0
+        ;;
+    lock)
+        "$REAL_BW" "$@"
+        rc=$?
+        clear_session
+        exit $rc
+        ;;
+    *)
+        ensure_session || exit 1
+        exec "$REAL_BW" "$@"
+        ;;
+esac

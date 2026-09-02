@@ -25,6 +25,7 @@ brew "python"
 brew "pipx"
 #brew "golangci-lint-langserver"
 brew "golangci-lint"
+brew "protoc"
 
 brew "kubectl"
 brew "k9s"
@@ -33,6 +34,7 @@ brew "docker-compose"
 brew "awscli"
 
 brew "redis"
+brew "postgresql"
 
 tap "oven-sh/bun", trusted: true
 brew "oven-sh/bun/bun"

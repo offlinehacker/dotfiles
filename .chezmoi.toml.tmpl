@@ -27,6 +27,13 @@
 {{-   $signingkey = promptString "signing key" -}}
 {{- end -}}
 
+{{- $pinentryProgram := "pinentry-tty" -}}
+{{- if hasKey . "pinentryProgram" -}}
+{{-   $pinentryProgram = .pinentryProgram -}}
+{{- else if $interactive -}}
+{{-   $pinentryProgram = promptString "pinentry program" $pinentryProgram -}}
+{{- end -}}
+
 {{- if $interactive -}}
 {{-   writeToStdout "💡 Tip: you can re-enter your data with `chezmoi init --data=false`.\n" -}}
 {{- end -}}
@@ -37,3 +44,4 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 name = "{{ $name }}"
 email = "{{ $email }}"
 signingkey = "{{ $signingkey }}"
+pinentryProgram = "{{ $pinentryProgram }}"
