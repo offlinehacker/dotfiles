@@ -5,3 +5,4 @@ alias mv="mv -iv"
 alias ll='ls -l'
 alias la='ls -A'
 alias l='ls -CF'
+alias oc='opencode attach --dir . http://localhost:4096'
