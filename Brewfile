@@ -25,7 +25,7 @@ brew "python"
 brew "pipx"
 #brew "golangci-lint-langserver"
 brew "golangci-lint"
-brew "protoc"
+brew "protobuf"
 
 brew "kubectl"
 brew "k9s"
