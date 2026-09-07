@@ -9,7 +9,9 @@
 # neither file present, the command just runs directly.
 #
 # Usage: runenv [-p <profile>] -- <command> [args...]
-# With no -p, secretspec uses its own default profile.
+# With no -p, the ENV environment variable is used as the profile if set
+# (e.g. ENV=prod runenv -- cmd), otherwise secretspec uses its own default
+# profile. An explicit -p flag takes precedence over ENV.
 set -euo pipefail
 
 DIRENV="direnv"
@@ -32,7 +34,7 @@ find_up() {
 
 usage() { die "usage: runenv [-p <profile>] -- <command> [args...]"; }
 
-PROFILE=""
+PROFILE="${ENV:-}"
 if [[ "${1:-}" == "-p" ]]; then
     [[ -n "${2:-}" ]] || usage
     PROFILE="$2"
@@ -46,15 +48,16 @@ shift
 
 cmd=("$@")
 
+if find_up .envrc .env; then
+    export ENV="$PROFILE"
+    cmd=("$DIRENV" exec . "${cmd[@]}")
+fi
+
 if find_up secretspec.toml; then
     secretspec_args=(run)
     [[ -n "$PROFILE" ]] && secretspec_args+=(--profile "$PROFILE")
     secretspec_args+=(-- "${cmd[@]}")
     cmd=("$SECRETSPEC" "${secretspec_args[@]}")
-fi
-
-if find_up .envrc .env; then
-    cmd=("$DIRENV" exec . "${cmd[@]}")
 fi
 
 exec "${cmd[@]}"
