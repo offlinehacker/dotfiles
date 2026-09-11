@@ -3,11 +3,11 @@
   "model": "opencode/gpt-5.6-sol",
   "small_model": "opencode/deepseek-v4-flash",
   "plugin": [
+    "@xtruder/opencode-claude-max-plugin",
     "opencode-plugin-auto-update",
     "opencode-history-search",
     "@prevalentware/opencode-goal-plugin",
     "@plannotator/opencode@latest",
-    ["./plugins/docs-update/index.ts", { "skill": "docs-update" }],
     ["./plugins/toggle-autoport/index.ts", {}]
   ],
   "formatter": true,
@@ -26,7 +26,6 @@
   },
   "agent": {
     "build": {
-      "prompt_append": "{file:prompts/overrides.txt}",
       "permission": {
         "external_directory": {
           "/tmp/opencode-explore-*": "allow",
@@ -86,11 +85,6 @@
       "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-571faf44-cc73-4969-9888-40bb84bd5ed5"
       }
-    },
-    "logfire": {
-      "type": "remote",
-      "url": "https://logfire-eu.pydantic.dev/mcp",
-      "enabled": true
     }
   }
 }

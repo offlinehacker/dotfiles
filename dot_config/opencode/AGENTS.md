@@ -1,2 +1,4 @@
-- Prefer the AskUserQuestion tool over plain-text questions when clarifying decisions, confirming choices, or resolving ambiguity, including mid-skill (e.g. grill-me/grilling rounds).
-- ALWAYS use **runenv** command to run commands in specific environment, example: `runenv [-p <profile>] -- <command> [args...]`. It will automatically load direnv and secretspec, thus injecting required secrets.
+- Use subagents ONLY when they would decisively save time or context. AVOID subagents for trivial work the main agent can finish faster. ALWAYS use subagents when doing code reviews.
+- PREFER the AskUserQuestion tool over plain-text questions when clarifying decisions, confirming choices, or resolving ambiguity, including mid-skill (e.g. grill-me/grilling rounds).
+- USE **runenv** command for running commands in specific environment, example: `runenv [-p <profile>] -- <command> [args...]`. It will automatically load direnv and secretspec and inject required environment variables. AVOID using it when working on code that doesn't require extra environment.
+- ADD comments when they explain why — design decisions, workarounds, non-obvious constraints, or complex logic that needs context. NO NOT add comments that merely restate what the code already expresses. Preserve existing comments when editing nearby code; update them instead of deleting.
