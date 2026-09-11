@@ -4,7 +4,12 @@ After=network.target
 
 [Service]
 Type=simple
+# Required for agent to run secretspec
 Environment="SECRETSPEC_REASON=opencode agent access"
+# Refresh cached npm plugins (opencode pins @latest at first install and
+# never re-resolves the cache). Script exits 0 always; `-` prefix means even
+# a missing script cannot block the boot.
+ExecStartPre=-%h/.local/bin/opencode-update-plugins
 ExecStart=/home/linuxbrew/.linuxbrew/bin/opencode serve --hostname=0.0.0.0 --port 4096 --cors *
 Restart=on-failure
 RestartSec=5

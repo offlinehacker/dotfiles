@@ -1,0 +1,201 @@
+#!/usr/bin/env node
+// opencode-update-plugins — pre-start updater for OpenCode npm plugins.
+//
+// OpenCode caches npm plugins in ~/.cache/opencode/packages/<spec>/ and never
+// re-resolves them (its Npm.add() short-circuits when node_modules/<name>
+// exists), so `@latest` in opencode.json is pinned at first install. Runs as
+// ExecStartPre on opencode.service: check the registry per npm plugin, and if
+// outdated refresh the cache dir with one plain `npm install`.
+//
+//   OPENCODE_PLUGIN_UPDATE_OFF=1     disable entirely
+//   OPENCODE_PLUGIN_UPDATE_FORCE=1   ignore the throttle, always check
+//   OPENCODE_PLUGIN_UPDATE_HOURS=n   throttle window in hours (default 6)
+//
+// Never blocks a boot: any error exits 0 and the server starts on the cache.
+// Log: ~/.local/state/opencode/plugin-updates.log
+
+import fs from "node:fs"
+import path from "node:path"
+import os from "node:os"
+import { spawnSync } from "node:child_process"
+
+const CONFIG_DIR = path.join(os.homedir(), ".config", "opencode")
+const CACHE = path.join(os.homedir(), ".cache", "opencode", "packages")
+const STATE_DIR = path.join(os.homedir(), ".local", "state", "opencode")
+const LOG = path.join(STATE_DIR, "plugin-updates.log")
+const STAMP = path.join(STATE_DIR, ".plugin-update-last")
+const LOCK = path.join(STATE_DIR, ".plugin-update.lock.json")
+const LOCK_STALE_MS = 60 * 60 * 1000
+
+const say = (msg) => {
+  try {
+    fs.mkdirSync(STATE_DIR, { recursive: true })
+    fs.appendFileSync(LOG, `${new Date().toLocaleString("sv-SE").slice(0, 19)} ${msg}\n`)
+  } catch {}
+}
+const die = (msg) => {
+  say(msg)
+  process.exit(0)
+}
+
+if (process.env.OPENCODE_PLUGIN_UPDATE_OFF === "1") process.exit(0)
+
+const configFile = ["opencode.jsonc", "opencode.json"]
+  .map((f) => path.join(CONFIG_DIR, f))
+  .find((f) => fs.existsSync(f))
+if (!configFile) process.exit(0)
+
+let config
+try {
+  config = JSON.parse(fs.readFileSync(configFile, "utf8"))
+} catch {
+  die("config parse failed, skipping")
+}
+
+// single instance: O_EXCL lockfile, stale after 1h
+try {
+  const fd = fs.openSync(LOCK, "wx")
+  fs.writeSync(fd, JSON.stringify({ pid: process.pid, at: Date.now() }))
+  fs.closeSync(fd)
+} catch {
+  try {
+    if (Date.now() - fs.statSync(LOCK).mtimeMs > LOCK_STALE_MS) {
+      fs.rmSync(LOCK)
+      const fd = fs.openSync(LOCK, "wx")
+      fs.writeSync(fd, JSON.stringify({ pid: process.pid, at: Date.now() }))
+      fs.closeSync(fd)
+    } else process.exit(0)
+  } catch {
+    process.exit(0)
+  }
+}
+process.on("exit", () => {
+  try {
+    fs.rmSync(LOCK)
+  } catch {}
+})
+
+// throttle: stamp mtime = last completed attempt
+const hours = Number(process.env.OPENCODE_PLUGIN_UPDATE_HOURS) || 6
+let last = 0
+try {
+  last = fs.statSync(STAMP).mtimeMs
+} catch {}
+if (process.env.OPENCODE_PLUGIN_UPDATE_FORCE !== "1" && Date.now() - last < hours * 3600 * 1000) process.exit(0)
+
+const isPathSpec = (s) =>
+  !s || s.startsWith(".") || s.startsWith("/") || s.startsWith("~") ||
+  ["file:", "git:", "git+", "http:", "https:", "github:", "workspace:", "ssh:"].some((p) => s.startsWith(p))
+
+// "name@version" / "@scope/name@version" -> {name, version}
+function parseSpec(spec) {
+  const m = spec.match(/^(@[^/]+\/[^@]+|[^@]+)(?:@(.+))?$/)
+  return m ? { name: m[1], version: m[2] || "" } : null
+}
+
+async function latestVersion(name) {
+  // registry JSON API, no npm subprocess; scoped names must keep their slash
+  const url = `https://registry.npmjs.org/${name.split("/").map(encodeURIComponent).join("/")}/latest`
+  const res = await fetch(url, { signal: AbortSignal.timeout(30000) })
+  if (!res.ok) throw new Error(`registry ${res.status}`)
+  return (await res.json()).version
+}
+
+const installedVersion = (dir, name) => {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(dir, "node_modules", name, "package.json"), "utf8")).version || ""
+  } catch {
+    return ""
+  }
+}
+
+// npm's own bundled @npmcli/arborist — the exact engine opencode uses for
+// plugin installs (packages/core/src/npm.ts reify()); used as a library so
+// behavior matches the server's installer. Falls back to an npm subprocess.
+const ARBORIST_CANDIDATES = [
+  path.join(path.dirname(process.execPath), "..", "lib", "node_modules", "npm", "node_modules", "@npmcli", "arborist", "lib", "index.js"),
+  path.join(path.dirname(process.execPath), "..", "lib", "node_modules", "npm", "node_modules", "@npmcli", "arborist", "index.js"),
+]
+const arboristPath = ARBORIST_CANDIDATES.find((p) => fs.existsSync(p))
+
+async function installWithArborist(dir, name) {
+  const { Arborist } = await import(arboristPath)
+  const arborist = new Arborist({
+    path: dir,
+    binLinks: true,
+    progress: false,
+    savePrefix: "",
+    ignoreScripts: true,
+  })
+  await arborist.reify({ add: [`${name}@latest`], save: true, saveType: "prod" })
+}
+
+function installWithNpm(dir, name) {
+  const r = spawnSync("npm", ["install", "--prefix", dir, `${name}@latest`, "--ignore-scripts", "--no-audit", "--no-fund"], {
+    timeout: 240000,
+    encoding: "utf8",
+  })
+  if (r.status !== 0) say(`npm install output: ${(r.stderr || r.stdout || "").slice(-400)}`)
+  return r.status === 0
+}
+
+async function npmInstall(dir, name) {
+  if (arboristPath) {
+    try {
+      await installWithArborist(dir, name)
+      return true
+    } catch (e) {
+      say(`arborist install failed (${e?.message?.slice(0, 300)}), falling back to npm`)
+    }
+  }
+  return installWithNpm(dir, name)
+}
+
+try {
+  const specs = (config.plugin || []).map((p) => (Array.isArray(p) ? p[0] : p)).filter((s) => typeof s === "string")
+  let checked = 0, updated = 0, failed = 0
+  for (const spec of specs) {
+    if (isPathSpec(spec)) continue
+    const parsed = parseSpec(spec.startsWith("npm:") ? spec.slice(4) : spec)
+    if (!parsed) { say(`cannot parse spec '${spec}', skipping`); continue }
+    const { name, version } = parsed
+    if (version && version !== "latest") { say(`pinned version, skipping: ${spec}`); continue }
+
+    // dirs the loader may resolve this spec to: as-written, plus the @latest
+    // normalized form some code paths (e.g. `opencode plugin add`) create
+    const dirs = [path.join(CACHE, spec)]
+    const latestDir = path.join(CACHE, `${name}@latest`)
+    if (spec !== `${name}@latest` && fs.existsSync(latestDir)) dirs.push(latestDir)
+
+    let latest = ""
+    try {
+      latest = await latestVersion(name)
+    } catch (e) {
+      say(`registry check failed for ${name} (${e.message}), keeping cache`)
+      failed++
+      continue
+    }
+    checked++
+
+    const stale = dirs.some((d) => installedVersion(d, name) !== latest)
+    if (!stale) { say(`up to date: ${name}@${latest}`); continue }
+
+    for (const dir of dirs) {
+      const before = installedVersion(dir, name)
+      if (before === latest) continue
+      if ((await npmInstall(dir, name)) && installedVersion(dir, name) === latest) {
+        say(`updated in ${path.relative(CACHE, dir) || "."}: ${name} ${before || "<none>"} -> ${latest}`)
+        updated++
+      } else {
+        say(`install failed for ${name} in ${path.relative(CACHE, dir) || "."}, keeping cache`)
+        failed++
+      }
+    }
+  }
+  fs.writeFileSync(STAMP, "")
+  say(`done: checked=${checked} updated=${updated} failed=${failed}`)
+} catch (e) {
+  say(`unexpected error: ${e?.message || e}`)
+} finally {
+  process.exit(0)
+}
