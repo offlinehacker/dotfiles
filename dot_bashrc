@@ -36,9 +36,20 @@ function locate_xdg_data_dirs_file {
 function get_git_branch {
     local __dir="$PWD"
     while [[ -n "$__dir" ]]; do
-        if [ -f "$__dir/.git/HEAD" ]; then
+        if [ -e "$__dir/.git" ]; then
+            local __gitdir="$__dir/.git"
+            # Submodules and worktrees have a .git *file* pointing at the real gitdir
+            # (e.g. "gitdir: ../.git/modules/foo" or ".../worktrees/name") instead of
+            # a .git directory, so resolve that indirection before reading HEAD.
+            if [ -f "$__gitdir" ]; then
+                local __gitfile_line
+                read -r __gitfile_line < "$__gitdir" 2>/dev/null || return
+                [[ $__gitfile_line == gitdir:* ]] || return
+                __gitdir="${__gitfile_line#gitdir: }"
+                [[ $__gitdir == /* ]] || __gitdir="$__dir/$__gitdir"
+            fi
             local __git_branch
-            read -r __git_branch < "$__dir/.git/HEAD" 2>/dev/null || return
+            read -r __git_branch < "$__gitdir/HEAD" 2>/dev/null || return
             if [[ $__git_branch == ref:* ]]; then
                 __git_branch=${__git_branch#ref: refs/heads/}
             else
@@ -129,3 +140,4 @@ if [ -d ~/.bashrc.d ]; then
     source "$f"
   done
 fi
+

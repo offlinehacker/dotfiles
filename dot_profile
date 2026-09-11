@@ -17,16 +17,6 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 fi
 
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
-fi
-
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
-fi
-
 if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ] ; then
     . $HOME/.nix-profile/etc/profile.d/nix.sh
 fi
@@ -35,8 +25,3 @@ if [ -z $XDG_DATA_DIRS ] && [ -d /usr/share ] ; then
     export XDG_DATA_DIRS=/usr/share
 fi
 
-# if go is installed set GOPATH and add go binaries to PATH
-if command -v go >/dev/null 2>&1; then
-    export GOPATH=$HOME/go
-    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-fi
