@@ -5,7 +5,7 @@
     "@xtruder/opencode-claude-max-plugin", 
     "opencode-history-search",
     "@plannotator/opencode@latest",
-    ["./plugins/docs-update/index.ts", { "skill": "docs-update" }],
+    //["./plugins/docs-update/index.ts", { "skill": "docs-update" }],
     ["./plugins/toggle-autoport/index.ts", {}],
     ["./plugins/worktree.ts", { "worktreeDir": ".worktrees" }],
     ["./plugins/session-tools.ts", {}]
