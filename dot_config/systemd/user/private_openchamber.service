@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenChamber web server
+After=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/home/offlinehq/.config/openchamber/startup.env
+ExecStart="/home/linuxbrew/.linuxbrew/Cellar/node/26.8.1/bin/node" "/home/offlinehq/.bun/install/global/node_modules/@openchamber/web/bin/cli.js" "serve" "--foreground" "--port" "3000" "--host" "0.0.0.0" "--api-only"
+WorkingDirectory=/home/offlinehq
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

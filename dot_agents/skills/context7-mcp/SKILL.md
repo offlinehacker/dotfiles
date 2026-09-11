@@ -54,3 +54,5 @@ Incorporate the fetched documentation into your response:
 - **One topic per query**: Split multi-topic questions into separate `query-docs` calls — resolve the library ID once, then query per concept, unless the question is about how the concepts interact
 - **Version awareness**: When users mention versions ("Next.js 15", "React 19"), use version-specific library IDs if available from the resolution step
 - **Prefer official sources**: When multiple matches exist, prefer official/primary packages over community forks
+- **Verify lifecycle semantics in source**: Documentation summaries may omit execution order, failure behavior, or whether a callback can short-circuit. For security- or compatibility-sensitive behavior, inspect the official implementation after using Context7.
+- **Pin requested versions**: Context7 may return current-development documentation even when the user names a released version. Confirm version-specific claims against the official tag or release source and state which version was verified.
