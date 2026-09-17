@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Keep a stable path for long-lived user services while SSH rotates its forwarding socket.
+if [ -n "${SSH_AUTH_SOCK:-}" ] && [ -S "$SSH_AUTH_SOCK" ]; then
+  stable="$HOME/.ssh/ssh_auth_sock"
+  temporary="${stable}.$$"
+  ln -sfn -- "$SSH_AUTH_SOCK" "$temporary"
+  mv -Tf -- "$temporary" "$stable"
+fi

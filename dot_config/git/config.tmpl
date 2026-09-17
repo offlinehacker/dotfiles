@@ -93,12 +93,14 @@
 {{-   if .email }}
 	email = {{ .email }}
 {{-   end }}
-{{-   if .signingkey }}
-	signingKey = {{ .signingkey }}
-{{-   end }}
+	signingKey = ~/.ssh/git-signing-key.pub
 [tag]
 	forceSignAnnotated = true
 [commit]
 	gpgSign = true
 [core]
         excludesFile = ~/.config/git/ignore
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers

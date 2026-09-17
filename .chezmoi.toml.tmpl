@@ -20,13 +20,6 @@
 {{-   $email = promptString "email" $email -}}
 {{- end -}}
 
-{{- $signingkey := "" -}}
-{{- if hasKey . "signingkey" -}}
-{{-   $signingkey = .signingkey -}}
-{{- else if $interactive -}}
-{{-   $signingkey = promptString "signing key" -}}
-{{- end -}}
-
 {{- $pinentryProgram := "pinentry-tty" -}}
 {{- if hasKey . "pinentryProgram" -}}
 {{-   $pinentryProgram = .pinentryProgram -}}
@@ -43,5 +36,4 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 [data]
 name = "{{ $name }}"
 email = "{{ $email }}"
-signingkey = "{{ $signingkey }}"
 pinentryProgram = "{{ $pinentryProgram }}"

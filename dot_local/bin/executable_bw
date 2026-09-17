@@ -15,7 +15,7 @@ REAL_BW="/home/linuxbrew/.linuxbrew/bin/bw"
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
 LOCK_FILE="$RUNTIME_DIR/bw_session.lock"
 KEY_DESC="bw_session"
-KEY_TTL="${BW_SESSION_TTL:-60}" # 1m
+KEY_TTL="${BW_SESSION_TTL:-1800}" # 30m
 
 die() { echo "bw: $*" >&2; exit 1; }
 

@@ -21,6 +21,32 @@ Service is installed but not enabled by default.
 
 The global OpenCode configuration includes a documentation-update plugin and companion feature-documentation skill. See [Automatic documentation updates](dot_config/opencode/plugins/docs-update/README.md) for triggers, configuration, and operational constraints.
 
+## SSH commit signing with GPG Agent
+
+```sh
+identity="$(git config --global user.email)"
+
+mkdir -p ~/.ssh ~/.config/git
+gpg --export-ssh-key "$identity" > ~/.ssh/git-signing-key.pub
+{
+  printf '%s ' "$identity"
+  cat ~/.ssh/git-signing-key.pub
+} > ~/.config/git/allowed_signers
+chmod 600 ~/.ssh/git-signing-key.pub
+chmod 600 ~/.config/git/allowed_signers
+
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/git-signing-key.pub
+git config --global commit.gpgsign true
+git config --global gpg.ssh.allowedSignersFile ~/.config/git/allowed_signers
+```
+
+```sh
+ssh-keygen -lf ~/.ssh/git-signing-key.pub
+ssh-add -l
+git show --show-signature --no-patch HEAD
+```
+
 ### oo7 (Secret Service)
 
 Service is installed but not enabled by default. It provides the D-Bus Secret
