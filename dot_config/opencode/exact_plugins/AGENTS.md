@@ -1,6 +1,6 @@
 # OpenCode plugin conventions
 
-- Package substantial global plugins in `dot_config/opencode/plugins/<name>/` with the implementation, lifecycle tests, and feature README colocated.
+- Package substantial global plugins in `dot_config/opencode/exact_plugins/exact_<name>/` with the implementation, lifecycle tests, and feature README colocated. The `exact_` prefix makes `chezmoi apply` delete target files that are no longer in the source, so name every new plugin directory with it too.
 - Register a nested plugin entry point explicitly in `dot_config/opencode/opencode.jsonc`; do not add a second top-level auto-discovered loader for the same plugin.
 - Treat the colocated plugin README as the feature document for that plugin instead of creating a duplicate under the repository's `docs/feature/` directory.
 - Keep companion global skills under `dot_config/opencode/skills/<name>/` so OpenCode discovers them independently from the plugin.
