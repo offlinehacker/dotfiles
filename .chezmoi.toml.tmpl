@@ -27,6 +27,12 @@
 {{-   $pinentryProgram = promptString "pinentry program" $pinentryProgram -}}
 {{- end -}}
 
+{{- /* Generated once and persisted in chezmoi.toml; shared by opencode service, OpenChamber and plugins */ -}}
+{{- $opencodeServerPassword := randAlphaNum 40 -}}
+{{- if hasKey . "opencodeServerPassword" -}}
+{{-   $opencodeServerPassword = .opencodeServerPassword -}}
+{{- end -}}
+
 {{- if $interactive -}}
 {{-   writeToStdout "💡 Tip: you can re-enter your data with `chezmoi init --data=false`.\n" -}}
 {{- end -}}
@@ -37,3 +43,4 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 name = "{{ $name }}"
 email = "{{ $email }}"
 pinentryProgram = "{{ $pinentryProgram }}"
+opencodeServerPassword = "{{ $opencodeServerPassword }}"

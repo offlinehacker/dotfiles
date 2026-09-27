@@ -40,7 +40,7 @@ tap "oven-sh/bun", trusted: true
 brew "oven-sh/bun/bun"
 
 tap "anomalyco/tap", trusted: true
-brew "opencode"
+brew "opencode-v2"
 cask "claude-code@latest"
 
 tap "xtruder/tap", trusted: true

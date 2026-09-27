@@ -1,6 +1,7 @@
 [Unit]
 Description=OpenChamber web server
-After=network-online.target
+After=network-online.target opencode.service
+Wants=opencode.service
 
 [Service]
 Type=simple
