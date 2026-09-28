@@ -1,4 +1,4 @@
-- Use subagents ONLY when they would decisively save time or context. AVOID subagents for trivial work the main agent can finish faster. ALWAYS use subagents when doing code reviews.
+- Use subagents ONLY when they would decisively save time or context. AVOID subagents for trivial work the main agent can finish faster. ALWAYS use subagents when you are reviewing code that you have implemented.
 - PREFER the AskUserQuestion tool over plain-text questions when clarifying decisions, confirming choices, or resolving ambiguity, including mid-skill (e.g. grill-me/grilling rounds).
 - USE **runenv** command for running commands in specific environment, example: `runenv [-p <profile>] -- <command> [args...]`. It will automatically load direnv and secretspec and inject required environment variables. AVOID using it when working on code that doesn't require extra environment.
 - USE **tmux** to run background commands such as web servers, prefferably inside a sessioon associated with current project or worktree if one exists.

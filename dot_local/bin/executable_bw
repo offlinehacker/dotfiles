@@ -27,6 +27,12 @@ get_cached_session() {
     keyctl print "$kid" 2>/dev/null
 }
 
+refresh_session() {
+    local kid
+    kid="$(find_key)" || return 1
+    keyctl timeout "$kid" "$KEY_TTL" 2>/dev/null
+}
+
 store_session() {
     local session="$1" kid
     if kid="$(find_key)"; then
@@ -68,6 +74,7 @@ ensure_session() {
 
     local cached
     cached="$(get_cached_session)" || true
+    [[ -z "$cached" ]] || refresh_session || true
     if session_valid "$cached"; then
         export BW_SESSION="$cached"
         return 0
@@ -81,6 +88,7 @@ ensure_session() {
 
     # Re-check: whoever held the lock before us may have just unlocked.
     cached="$(get_cached_session)" || true
+    [[ -z "$cached" ]] || refresh_session || true
     if session_valid "$cached"; then
         export BW_SESSION="$cached"
         flock -u 9
